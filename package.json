@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@rocket.chat/sdk": "^0.2.9-2",
+    "dotenv": "^8.1.0",
+    "mail": "^0.2.3",
+    "mailparser": "^2.7.1",
+    "node-mbox": "^1.0.0",
+    "smtp-client": "^0.3.1"
+  }
+}
