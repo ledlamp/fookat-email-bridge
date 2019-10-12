@@ -4,7 +4,7 @@ var Mbox = require("node-mbox");
 var {simpleParser} = require("mailparser");
 var {SMTPClient} = require("smtp-client");
 
-class MailBot extends EventEmitter {
+class MailInterface extends EventEmitter {
 	
 	constructor(opts) {
 		super();
@@ -33,19 +33,32 @@ class MailBot extends EventEmitter {
 		});
 	}
 	
-	async send(to, subject, body) {
-		console.log("sending mail", {to, subject, body});
+	async send(body) {
+		console.log("sending mail:", body);
 		var smtpClient = new SMTPClient(this.smtp);
 		await smtpClient.connect();
 		await smtpClient.greet({hostname: this.smtp.ehlo});
 		await smtpClient.mail({from: this.smtp.from});
-		await smtpClient.rcpt({to});
-		await smtpClient.data((subject ? `Subject: ${subject}\n` : '') + '\r\n\r\n' + body);
+		await smtpClient.rcpt({to: this.target});
+		var msg = '\r\n' + body.replace(/\n/g, '\r\n') + '\r\n';
+		/*var msg = 'MIME-Version: 1.0\r\n' +
+			'Content-Type: multipart/alternative; boundary="asdfhuiadfghviuarevhilu"\r\n' +
+			"\r\n" +
+			"--asdfhuiadfghviuarevhilu\r\n" +
+			'Content-Type: text/plain; charset="UTF-8"\r\n' +
+			'\r\n' + body.replace(/\n/g, '\r\n') + '\r\n' +
+			'\r\n' +
+			"--asdfhuiadfghviuarevhilu\r\n" +
+			'Content-Type: text/html; charset="UTF-8"\r\n' +
+			'\r\n<div dir="ltr">' + body.replace(/\n/g, '\r\n') + '</div>\r\n' +
+			'\r\n' +
+			'--asdfhuiadfghviuarevhilu--\r\n';*/
+		await smtpClient.data(msg);
 		await smtpClient.quit();
 		console.log("finished sending mail");
 	}
 	
 }
 
-module.exports = MailBot;
+module.exports = MailInterface;
 
